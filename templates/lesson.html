@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Answer for: {{ query }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>{{ query | title }}</h1>
+
+        <!-- Text & Audio -->
+        <div class="content-section">
+            <h2>Explanation</h2>
+            <p>{{ text_answer }}</p>
+            {% if audio_url %}
+            <audio controls src="{{ audio_url }}">
+                Your browser does not support the audio element.
+            </audio>
+            {% else %}
+            <p class="error-message">Audio could not be generated.</p>
+            {% endif %}
+        </div>
+
+        <!-- Images -->
+        <div class="content-section">
+            <h2>Relevant Images</h2>
+            {% if top_images %}
+            <div class="visuals-grid">
+                {% for img in top_images %}
+                <a href="{{ img }}" target="_blank">
+                    <img class="lesson-image" src="{{ img }}" alt="Visual for {{ query }}">
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="error-message">No relevant images found.</p>
+            {% endif %}
+        </div>
+
+        <!-- Videos -->
+        <div class="content-section">
+            <h2>Top YouTube Videos</h2>
+            {% if top_videos %}
+            <ul>
+                {% for video in top_videos %}
+                <li>
+                    <a href="{{ video.watch_url }}" target="_blank" rel="noopener noreferrer">{{ video.title }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="error-message">No relevant videos found.</p>
+            {% endif %}
+        </div>
+
+        <a href="/" class="button">Ask Another Question</a>
+    </div>
+</body>
+</html>
