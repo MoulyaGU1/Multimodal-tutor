@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Register</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body {background: linear-gradient(135deg, #fbc2eb, #a6c1ee); height:100vh; display:flex; justify-content:center; align-items:center;}
+.container {background:white; padding:40px; border-radius:15px; box-shadow:0 5px 20px rgba(0,0,0,0.2); width:400px; text-align:center;}
+h2 {margin-bottom:25px; color:#6f42c1;}
+.btn {width:100%;}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Register</h2>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}{% for category,message in messages %}
+<div class="alert alert-{{category}}">{{message}}</div>{% endfor %}{% endif %}
+{% endwith %}
+<form method="POST">
+<input type="text" class="form-control mb-3" name="first_name" placeholder="First Name" required>
+<input type="text" class="form-control mb-3" name="last_name" placeholder="Last Name" required>
+<input type="date" class="form-control mb-3" name="dob" required>
+<input type="email" class="form-control mb-3" name="email" placeholder="Email" required>
+<input type="password" class="form-control mb-3" name="password" placeholder="Password" required>
+<button type="submit" class="btn btn-success">Register</button>
+</form>
+<p class="mt-3">Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+</div>
+</body>
+</html>
