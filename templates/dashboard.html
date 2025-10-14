@@ -161,6 +161,14 @@
             .main { padding: 30px 15px; }
             .profile-drawer { width: 80%; }
         }
+                .back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: #d20549;
+            color: #fff;
+}
+
     </style>
 </head>
 <body>
@@ -171,6 +179,8 @@
             <img src="{{ url_for('static', filename='uploads/' + user.profile_pic) }}" alt="Profile">
         </div>
     </div>
+    
+    
 
     <!-- Main Content -->
     <div class="main">
@@ -181,6 +191,7 @@
             <input type="text" name="query" placeholder="e.g., How do black holes form?" required>
             <button type="submit">Explore</button>
         </form>
+        
 
         <!-- Suggested Categories -->
         <div class="categories">
@@ -199,20 +210,29 @@
         </div>
     </div>
 
+
+
+  
+    
+
     <!-- Profile Drawer -->
-    <div class="profile-drawer" id="profileDrawer">
+    <div class="profile-drawer" id="profileDrawer"> 
+       <div class="profile-icon" onclick="toggleProfile()">
+            <img src="{{ url_for('static', filename='uploads/' + user.profile_pic) }}" alt="Profile">
+        </div>
         <h3>{{ user.first_name }} {{ user.last_name }}</h3>
         <p><strong>Email:</strong> {{ user.email }}</p>
         <p><strong>DOB:</strong> {{ user.dob }}</p>
         <hr>
         <a href="{{ url_for('profile') }}">Edit Profile</a>
         <a href="{{ url_for('logout') }}">Logout</a>
+       
     </div>
 
     <script>
         function toggleProfile() {
             document.getElementById('profileDrawer').classList.toggle('open');
+             document.getElementById('profileDrawer').classList.toggle('close');
         }
     </script>
-</body>
-</html>
+    </html>

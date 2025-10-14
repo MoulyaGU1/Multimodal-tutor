@@ -57,5 +57,12 @@
 
         <a href="/" class="button">Ask Another Question</a>
     </div>
+    <h2>Related Images</h2>
+<div class="image-gallery">
+    {% for img in images %}
+        <img src="{{ img }}" alt="{{ topic }}" class="lesson-img">
+    {% endfor %}
+</div>
+
 </body>
 </html>

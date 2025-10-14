@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS Learning Hub - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f7f7; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header Navigation (Duplicated for simplicity) -->
+    <header class="bg-gray-800 text-white shadow-lg">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold"><a href="{{ url_for('course_home') }}" class="hover:text-yellow-400">CS Learning Hub</a></h1>
+            <div class="space-x-4">
+                <a href="{{ url_for('courses') }}" class="hover:text-yellow-400 p-2 rounded-lg transition duration-150">Courses</a>
+                {% if logged_in %}
+                    <a href="{{ url_for('board') }}" class="hover:text-yellow-400 p-2 rounded-lg transition duration-150 font-bold border-b-2 border-yellow-400">Dashboard</a>
+                    <a href="{{ url_for('logout') }}" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-full shadow-md transition duration-150">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-4 rounded-full shadow-md transition duration-150">Login</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-12">
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- User Profile Card -->
+            <div class="lg:col-span-1 bg-white p-8 rounded-xl shadow-2xl border-t-4 border-indigo-600 h-fit">
+                <div class="flex flex-col items-center">
+                    <div class="w-24 h-24 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-4xl font-bold mb-4">
+                        {{ user.username[0]|upper }}
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-gray-900">{{ user.username }}</h2>
+                    <p class="text-gray-500 mt-1">Learner ID: #{{ user.id }}</p>
+                </div>
+                
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Stats Summary (Real-time)</h3>
+                    <div class="space-y-2 text-gray-600">
+                        <p class="flex justify-between items-center">Total Courses: <span class="font-semibold text-gray-800">{{ stats.total_courses }}</span></p>
+                        <p class="flex justify-between items-center">Courses Completed: <span class="font-semibold text-gray-800">{{ stats.completed_courses }}</span></p>
+                        <p class="flex justify-between items-center">Quiz Average: <span class="font-semibold text-gray-800">{{ stats.quiz_average }}</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress & Activity -->
+            <div class="lg:col-span-2 bg-white p-8 rounded-xl shadow-2xl">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6 border-b pb-2">My Learning Progress (Video Completion)</h2>
+
+                <div class="space-y-4">
+                    {% for item in progress %}
+                    <div class="rounded-xl shadow-md overflow-hidden border border-gray-200">
+                        <!-- Course Header (Clickable to toggle videos) -->
+                        <div class="p-4 flex justify-between items-center cursor-pointer transition duration-200 
+                            {% if item.percentage == 100 %} bg-green-100 hover:bg-green-200
+                            {% elif item.percentage > 0 %} bg-blue-100 hover:bg-blue-200
+                            {% else %} bg-gray-100 hover:bg-gray-200 {% endif %}"
+                            onclick="toggleVideos('videos-{{ item.id }}', 'icon-{{ item.id }}')">
+                            
+                            <div class="flex-grow">
+                                <p class="text-xl font-bold text-gray-800">{{ item.title }}</p>
+                                
+                                <!-- Progress Bar -->
+                                <div class="w-full bg-gray-300 rounded-full h-2.5 mt-2">
+                                    <div class="h-2.5 rounded-full {% if item.percentage == 100 %} bg-green-600{% elif item.percentage > 0 %} bg-blue-600{% else %} bg-gray-500 {% endif %}" 
+                                        width: {{ item.percentage }}%
+
+                                    </div>
+                                </div>
+                                <p class="text-sm font-semibold mt-1">
+                                    {{ item.status }} ({{ item.percentage }}% Complete)
+                                </p>
+                            </div>
+                            
+                            <svg id="icon-{{ item.id }}" class="w-6 h-6 ml-4 text-gray-700 transform transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+
+                        <!-- Video List (Modules) - Collapsible Content -->
+                        <div id="videos-{{ item.id }}" class="hidden bg-white border-t border-gray-200">
+                            {% for video in item.videos %}
+                            <a href="{{ url_for('video_detail', video_id=video.id) }}" class="flex justify-between items-center p-4 border-b last:border-b-0 hover:bg-gray-50 transition duration-150">
+                                <div class="flex items-center space-x-3">
+                                    {% if video.is_completed %}
+                                        <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                        </svg>
+                                    {% else %}
+                                        <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    {% endif %}
+                                    <span class="text-sm font-medium {% if video.is_completed %}text-gray-600{% else %}text-gray-800{% endif %}">{{ video.title }}</span>
+                                </div>
+                                <span class="text-xs text-gray-500">
+                                    {{ 'Completed' if video.is_completed else 'Start Video' }}
+                                </span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <a href="{{ url_for('courses') }}" class="text-indigo-600 hover:text-indigo-800 font-medium">
+                        View all available courses
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-8">
+        <div class="container mx-auto px-4 py-6 text-center">
+            <p>&copy; 2025 CS Learning Hub. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <!-- Simple JavaScript for Collapse Toggle -->
+    <script>
+        function toggleVideos(elementId, iconId) {
+            const content = document.getElementById(elementId);
+            const icon = document.getElementById(iconId);
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        }
+    </script>
+</body>
+</html>

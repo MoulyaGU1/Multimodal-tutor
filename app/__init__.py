@@ -50,5 +50,4 @@ def create_app():
         # 6. Create database tables if they don't exist
         # This will create the users.db file in the 'instance' folder if it doesn't exist
         db.create_all()
-
-    return app
+        return app

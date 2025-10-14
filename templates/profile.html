@@ -38,9 +38,23 @@
             border-top: 1px solid #ddd;
             margin: 20px 0;
         }
+                        .back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: #d20549;
+            color: #fff;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+}
+
     </style>
 </head>
 <body>
+
+<a href="dashboard" class="back-btn">back</a>
+
     <!-- Logout Button -->
     <a href="{{ url_for('logout') }}" class="btn btn-danger btn-top">Logout</a>
      

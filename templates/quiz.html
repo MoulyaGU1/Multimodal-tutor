@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS Learning Hub - Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f7f7; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header Navigation (Duplicated for simplicity) -->
+    <header class="bg-gray-800 text-white shadow-lg">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold"><a href="{{ url_for('home1') }}" class="hover:text-yellow-400">CS Learning Hub</a></h1>
+            <div class="space-x-4">
+                <a href="{{ url_for('courses') }}" class="hover:text-yellow-400 p-2 rounded-lg transition duration-150">Courses</a>
+                {% if logged_in %}
+                    <a href="{{ url_for('dashboard') }}" class="hover:text-yellow-400 p-2 rounded-lg transition duration-150">Dashboard</a>
+                    <a href="{{ url_for('logout') }}" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-full shadow-md transition duration-150">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-4 rounded-full shadow-md transition duration-150">Login</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-12">
+        <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-2xl">
+            <h2 class="text-4xl font-extrabold text-indigo-700 mb-6 text-center">Course Quiz</h2>
+            
+            {% if results %}
+                <!-- Quiz Results Display -->
+                <div class="text-center p-6 rounded-lg mb-8 
+                    {% if results.score / results.total >= 0.7 %} bg-green-100 border-4 border-green-500 
+                    {% else %} bg-red-100 border-4 border-red-500 {% endif %}">
+                    <h3 class="text-3xl font-bold 
+                        {% if results.score / results.total >= 0.7 %} text-green-700 
+                        {% else %} text-red-700 {% endif %} mb-2">
+                        Quiz Complete!
+                    </h3>
+                    <p class="text-2xl font-semibold text-gray-800">
+                        Your Score: {{ results.score }} / {{ results.total }}
+                    </p>
+                    <p class="text-lg mt-2">
+                        {% if results.score / results.total >= 0.7 %} 
+                            Great job! You passed the quiz.
+                        {% else %} 
+                            You may want to review the material and try again.
+                        {% endif %}
+                    </p>
+                    <a href="{{ url_for('course_detail', course_id=course_id) }}" class="mt-4 inline-block text-indigo-600 hover:text-indigo-800 font-medium">
+                        Return to Course
+                    </a>
+                </div>
+
+                <!-- Detailed Results -->
+                <div class="space-y-6">
+                    <h4 class="text-2xl font-bold text-gray-800 border-b pb-2">Review Answers</h4>
+                    {% for result in results.details %}
+                        <div class="p-4 rounded-lg 
+                            {% if result.is_correct %} bg-green-50 border border-green-300 
+                            {% else %} bg-red-50 border border-red-300 {% endif %}">
+                            <p class="font-semibold text-gray-800">Q: {{ result.question }}</p>
+                            <p class="text-sm mt-1">Your Answer: <span class="font-medium {% if result.is_correct %}text-green-600{% else %}text-red-600{% endif %}">"{{ result.user_answer }}"</span></p>
+                            {% if not result.is_correct %}
+                                <p class="text-sm">Correct Answer: <span class="font-medium text-green-600">"{{ result.correct_answer }}"</span></p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+            {% else %}
+                <!-- Quiz Form -->
+                <form method="POST" action="{{ url_for('quiz', course_id=course_id) }}" class="space-y-6">
+                    {% for q in quizzes %}
+                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-200 shadow-md">
+                        <p class="text-lg font-semibold text-gray-800 mb-3">Q{{ loop.index }}: {{ q.question }}</p>
+                        <label for="q_{{ q.id }}" class="block text-sm font-medium text-gray-700 mb-1">Your Answer:</label>
+                        <input type="text" id="q_{{ q.id }}" name="q_{{ q.id }}" required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150">
+                    </div>
+                    {% endfor %}
+
+                    <div class="pt-4 border-t border-gray-200">
+                        <button type="submit" 
+                            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-full shadow-lg transform hover:scale-105 transition duration-300">
+                            Submit Quiz
+                        </button>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-8">
+        <div class="container mx-auto px-4 py-6 text-center">
+            <p>&copy; 2025 CS Learning Hub. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

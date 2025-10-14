@@ -3,11 +3,18 @@ from flask import current_app as app
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import os
+import sqlite3
+import os
+import json # <-- NEW: Needed to handle the JSON string in the user progress column
+from flask import Flask, render_template, request, redirect, url_for, session, g
+
+
 
 # Import necessary modules/objects from the local application package
-# db and User are defined in app/__init__.py
+# db and User are defined in app/_init_.py
 from . import db, User 
 from modules import text_generation, image_handling, text_to_speech, video_search 
+
 
 # --- Authentication Helper ---
 
@@ -191,4 +198,3 @@ def dashboard():
 
     user = User.query.get(session['user_id'])
     return render_template('dashboard.html', user=user)
-
