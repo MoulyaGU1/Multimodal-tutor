@@ -14,3 +14,4 @@ env/
 # IDE / Editor
 .vscode/
 .idea/
+app/static/uploads/
