@@ -14,14 +14,14 @@
     <!-- Header Navigation -->
     <header class="bg-gray-800 text-white shadow-lg">
         <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold"><a href="{{ url_for('home') }}" class="hover:text-yellow-400">CS Learning Hub</a></h1>
+            <h1 class="text-2xl font-bold"><a href="{{ url_for('main.welcome') }}" class="hover:text-yellow-400">CS Learning Hub</a></h1>
             <div class="space-x-4">
-                <a href="{{ url_for('courses') }}" class="hover:text-yellow-400 p-2 rounded-lg transition duration-150">Courses</a>
+                <a href="{{ url_for('main.courses') }}" class="hover:text-yellow-400 p-2 rounded-lg transition duration-150">Courses</a>
                 {% if logged_in %}
-                    <a href="{{ url_for('dashboard') }}" class="hover:text-yellow-400 p-2 rounded-lg transition duration-150">Dashboard</a>
-                    <a href="{{ url_for('logout') }}" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-full shadow-md transition duration-150">Logout</a>
+                    <a href="{{ url_for('main.dashboard') }}" class="hover:text-yellow-400 p-2 rounded-lg transition duration-150">Dashboard</a>
+                    <a href="{{ url_for('main.logout') }}" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-full shadow-md transition duration-150">Logout</a>
                 {% else %}
-                    <a href="{{ url_for('login') }}" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-4 rounded-full shadow-md transition duration-150">Login</a>
+                    <a href="{{ url_for('main.login') }}" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-4 rounded-full shadow-md transition duration-150">Login</a>
                 {% endif %}
             </div>
         </nav>
@@ -34,7 +34,7 @@
             <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
                 Your path to mastering coding, algorithms, and web development starts here. Learn at your own pace with interactive courses and quizzes.
             </p>
-            <a href="{{ url_for('courses') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-semibold py-3 px-8 rounded-full shadow-xl transform hover:scale-105 transition duration-300 inline-block">
+            <a href="{{ url_for('main.courses') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-semibold py-3 px-8 rounded-full shadow-xl transform hover:scale-105 transition duration-300 inline-block">
                 Explore Courses
             </a>
         </section>

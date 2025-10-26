@@ -7,8 +7,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    <a href="{{ url_for('main.dashboard') }}"
+                                class="inline-block bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-indigo-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 whitespace-nowrap transform hover:scale-[1.02]transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 whitespace-nowrap transform hover:scale-[1.02] background:bg-blue-100">
+                                Back to Dashboard 
+                            </a>
     <div class="container">
-        <h1>Knowledge Explorer</h1>
+        <h1>Knowledge Explorer</h1> 
+    
+
         <p class="subtitle">Ask anything. Learn anything.</p>
         <form action="/get_answer" method="post" class="search-form">
             <input type="text" id="query" name="query" placeholder="e.g., How do black holes form?" required autofocus>

@@ -3,104 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CS Learning Hub - Quiz</title>
+    <title>AI Quiz Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f7f7f7; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f4f7f9; }
+        .quiz-card {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .option-button:hover {
+            background-color: #e5e7eb;
+        }
+        .correct-answer { background-color: #d1fae5; border-color: #10b981; }
+        .incorrect-answer { background-color: #fee2e2; border-color: #ef4444; }
+        .selected-answer { background-color: #bfdbfe; border-color: #3b82f6; }
+        /* Simple Spinner CSS */
+        .loader {
+            border-top-color: #3b82f6;
+            -webkit-animation: spinner 1.5s linear infinite;
+            animation: spinner 1.5s linear infinite;
+        }
+        @-webkit-keyframes spinner {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
+    <div class="min-h-screen flex flex-col items-center p-4">
+        <header class="w-full max-w-4xl py-6 flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-gray-800">AI Quiz Generator</h1>
+            <a href="{{ url_for('main.dashboard') }}" class="text-blue-600 hover:text-blue-800 font-semibold transition duration-150 ease-in-out">
+                &larr; Back to Dashboard
+            </a>
+        </header>
 
-    <!-- Header Navigation (Duplicated for simplicity) -->
-    <header class="bg-gray-800 text-white shadow-lg">
-        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold"><a href="{{ url_for('home1') }}" class="hover:text-yellow-400">CS Learning Hub</a></h1>
-            <div class="space-x-4">
-                <a href="{{ url_for('courses') }}" class="hover:text-yellow-400 p-2 rounded-lg transition duration-150">Courses</a>
-                {% if logged_in %}
-                    <a href="{{ url_for('dashboard') }}" class="hover:text-yellow-400 p-2 rounded-lg transition duration-150">Dashboard</a>
-                    <a href="{{ url_for('logout') }}" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-full shadow-md transition duration-150">Logout</a>
-                {% else %}
-                    <a href="{{ url_for('login') }}" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-4 rounded-full shadow-md transition duration-150">Login</a>
-                {% endif %}
+        <div id="content-container" class="w-full max-w-4xl bg-white rounded-xl quiz-card p-6 md:p-10 mb-8">
+            <div id="topic-input">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">What topic would you like a quiz on?</h2>
+                <input type="text" id="quiz-topic" placeholder="e.g., Quantum Physics, Python Loops, The French Revolution"
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 mb-4">
+                <button onclick="generateQuiz()" id="generate-button"
+                        class="w-full py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition duration-150 ease-in-out">
+                    Generate Quiz
+                </button>
             </div>
-        </nav>
-    </header>
 
-    <!-- Main Content -->
-    <main class="flex-grow container mx-auto px-4 py-12">
-        <div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-2xl">
-            <h2 class="text-4xl font-extrabold text-indigo-700 mb-6 text-center">Course Quiz</h2>
-            
-            {% if results %}
-                <!-- Quiz Results Display -->
-                <div class="text-center p-6 rounded-lg mb-8 
-                    {% if results.score / results.total >= 0.7 %} bg-green-100 border-4 border-green-500 
-                    {% else %} bg-red-100 border-4 border-red-500 {% endif %}">
-                    <h3 class="text-3xl font-bold 
-                        {% if results.score / results.total >= 0.7 %} text-green-700 
-                        {% else %} text-red-700 {% endif %} mb-2">
-                        Quiz Complete!
-                    </h3>
-                    <p class="text-2xl font-semibold text-gray-800">
-                        Your Score: {{ results.score }} / {{ results.total }}
-                    </p>
-                    <p class="text-lg mt-2">
-                        {% if results.score / results.total >= 0.7 %} 
-                            Great job! You passed the quiz.
-                        {% else %} 
-                            You may want to review the material and try again.
-                        {% endif %}
-                    </p>
-                    <a href="{{ url_for('course_detail', course_id=course_id) }}" class="mt-4 inline-block text-indigo-600 hover:text-indigo-800 font-medium">
-                        Return to Course
+            <div id="loading-state" class="hidden flex flex-col items-center justify-center p-10">
+                <div class="loader ease-linear rounded-full border-4 border-t-4 h-12 w-12 mb-4"></div>
+                <p class="text-gray-600 font-medium">Generating your quiz, please wait...</p>
+                <p class="text-sm text-gray-500 mt-2">This may take up to 30 seconds.</p>
+            </div>
+
+            <div id="quiz-display" class="hidden">
+                <h2 id="quiz-title" class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2"></h2>
+                <div id="questions-container">
+                    </div>
+                <div class="mt-8 pt-6 border-t flex justify-center">
+                    <button onclick="submitQuiz()" id="submit-button"
+                            class="py-3 px-8 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition duration-150 ease-in-out">
+                        Submit Quiz and View Results
+                    </button>
+                </div>
+            </div>
+
+            <div id="results-display" class="hidden">
+                <h2 class="text-3xl font-bold mb-4 text-center">Quiz Results</h2>
+                <p class="text-center text-lg mb-6">You scored <span id="score-text" class="font-extrabold text-blue-600"></span></p>
+                <div id="detailed-results" class="space-y-6">
+                    </div>
+                <div class="mt-8 pt-6 border-t flex justify-center space-x-4">
+                    <button onclick="window.location.reload()"
+                            class="py-3 px-6 bg-gray-500 text-white font-bold rounded-lg hover:bg-gray-600 transition duration-150 ease-in-out">
+                        Try Another Topic
+                    </button>
+                    <a href="{{ url_for('main.quiz_history') }}"
+                       class="py-3 px-6 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition duration-150 ease-in-out flex items-center">
+                        View Quiz History
                     </a>
                 </div>
+            </div>
 
-                <!-- Detailed Results -->
-                <div class="space-y-6">
-                    <h4 class="text-2xl font-bold text-gray-800 border-b pb-2">Review Answers</h4>
-                    {% for result in results.details %}
-                        <div class="p-4 rounded-lg 
-                            {% if result.is_correct %} bg-green-50 border border-green-300 
-                            {% else %} bg-red-50 border border-red-300 {% endif %}">
-                            <p class="font-semibold text-gray-800">Q: {{ result.question }}</p>
-                            <p class="text-sm mt-1">Your Answer: <span class="font-medium {% if result.is_correct %}text-green-600{% else %}text-red-600{% endif %}">"{{ result.user_answer }}"</span></p>
-                            {% if not result.is_correct %}
-                                <p class="text-sm">Correct Answer: <span class="font-medium text-green-600">"{{ result.correct_answer }}"</span></p>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
+            <div id="message-box" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center p-4">
+                <div class="bg-white rounded-lg p-6 max-w-sm mx-auto shadow-2xl">
+                    <h3 id="message-title" class="text-xl font-bold mb-3 text-red-600">Error</h3>
+                    <p id="message-body" class="text-gray-700 mb-4">An unknown error occurred.</p>
+                    <button onclick="document.getElementById('message-box').classList.add('hidden')"
+                            class="w-full py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Close</button>
                 </div>
+            </div>
 
-            {% else %}
-                <!-- Quiz Form -->
-                <form method="POST" action="{{ url_for('quiz', course_id=course_id) }}" class="space-y-6">
-                    {% for q in quizzes %}
-                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-200 shadow-md">
-                        <p class="text-lg font-semibold text-gray-800 mb-3">Q{{ loop.index }}: {{ q.question }}</p>
-                        <label for="q_{{ q.id }}" class="block text-sm font-medium text-gray-700 mb-1">Your Answer:</label>
-                        <input type="text" id="q_{{ q.id }}" name="q_{{ q.id }}" required
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150">
-                    </div>
-                    {% endfor %}
-
-                    <div class="pt-4 border-t border-gray-200">
-                        <button type="submit" 
-                            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-full shadow-lg transform hover:scale-105 transition duration-300">
-                            Submit Quiz
-                        </button>
-                    </div>
-                </form>
-            {% endif %}
         </div>
-    </main>
+    </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white mt-8">
-        <div class="container mx-auto px-4 py-6 text-center">
-            <p>&copy; 2025 CS Learning Hub. All rights reserved.</p>
-        </div>
-    </footer>
+    <script>
+        const GENERATE_QUIZ_URL = '{{ url_for("main.generate_quiz_api") }}';
+        const SAVE_RESULTS_URL = '{{ url_for("main.save_quiz_results") }}';
+    </script>
+
+    <script>
+        // This function is used by quiz_logic.js (it calls window.showMessage)
+        function showMessage(title, body, isError = true) {
+            const titleEl = document.getElementById('message-title');
+            const bodyEl = document.getElementById('message-body');
+            
+            titleEl.textContent = title;
+            bodyEl.innerHTML = body;
+
+            if (isError) {
+                titleEl.classList.remove('text-blue-600');
+                titleEl.classList.add('text-red-600');
+            } else {
+                titleEl.classList.remove('text-red-600');
+                titleEl.classList.add('text-blue-600');
+            }
+
+            document.getElementById('message-box').classList.remove('hidden');
+        }
+        // Make it available to the external script
+        window.showMessage = showMessage;
+    </script>
+
+    <script src="{{ url_for('static', filename='quiz_logic.js') }}"></script>
+
 </body>
 </html>

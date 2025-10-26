@@ -1,0 +1,83 @@
+{% block title %}Quiz History{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200 py-8 px-4">
+    <!-- Header Section -->
+    <div class="max-w-5xl mx-auto flex justify-between items-center mb-8">
+        <h1 class="text-4xl font-extrabold text-gray-900 drop-shadow-md">
+            Your AI Quiz History 📝
+        </h1>
+        <a href="{{ url_for('main.dashboard') }}" 
+           class="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-indigo-700 transition">
+            <img src="{{ url_for('static', filename='images/home.png') }}" alt="Home" class="w-6 h-6">
+            <span>Back to Dashboard</span>
+        </a>
+    </div>
+
+    {% if history %}
+        <div class="max-w-4xl mx-auto space-y-6">
+            {% for attempt in history %}
+            <div x-data="{ open: false }" 
+                 class="bg-white bg-opacity-80 p-6 rounded-2xl shadow-lg border-l-8 
+                 {{ 'border-green-500' if attempt.percentage >= 70 else 'border-yellow-500' if attempt.percentage >= 50 else 'border-red-500' }} 
+                 transition hover:scale-[1.02] hover:shadow-2xl">
+                 
+                <div class="flex justify-between items-center mb-3 border-b pb-3">
+                    <h2 class="text-2xl font-bold text-indigo-700">{{ attempt.topic }}</h2>
+                    <span class="text-sm text-gray-600">{{ attempt.date_taken.strftime('%B %d, %Y') }}</span>
+                </div>
+
+                <p class="text-lg mb-4">
+                    Score:
+                    <strong class="text-3xl font-extrabold 
+                        {{ 'text-green-600' if attempt.percentage >= 70 else 'text-yellow-600' if attempt.percentage >= 50 else 'text-red-600' }}">
+                        {{ attempt.score }} / {{ attempt.total_questions }}
+                    </strong>
+                    (<span class="font-bold">{{ "%.1f" | format(attempt.percentage) }}%</span>)
+                </p>
+
+                <button @click="open = !open" 
+                        class="text-blue-600 hover:text-blue-800 text-sm font-semibold transition">
+                    <span x-show="!open">Show Details ({{ attempt.detail | length }} Qs)</span>
+                    <span x-show="open">Hide Details</span>
+                </button>
+
+                <div x-show="open" x-collapse.duration.400ms 
+                     class="mt-4 space-y-3 p-4 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg border border-indigo-200">
+                    {% for q_detail in attempt.detail %}
+                        <div class="text-sm p-3 rounded-md 
+                            {{ 'bg-green-100' if q_detail.is_correct else 'bg-red-100' }}">
+                            <p class="font-medium text-gray-800">Q: {{ q_detail.question }}</p>
+                            <p>Your Answer:
+                                <strong class="{{ 'text-green-800' if q_detail.is_correct else 'text-red-800' }}">
+                                    {{ q_detail.user_answer }}
+                                </strong>
+                            </p>
+                            {% if not q_detail.is_correct %}
+                                <p>Correct Answer: 
+                                    <span class="text-indigo-700 font-semibold">{{ q_detail.correct_answer }}</span>
+                                </p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="max-w-3xl mx-auto bg-blue-100 bg-opacity-70 p-6 rounded-xl text-blue-900 border-l-4 border-blue-500 shadow-lg">
+            <p class="text-lg">
+                You haven't taken any AI generated quizzes yet! 💡 
+                Go to the 
+                <a href="{{ url_for('main.ai_quiz_generator_page') }}" 
+                   class="font-bold underline text-blue-800 hover:text-blue-900 transition">
+                    AI Quiz Generator
+                </a> 
+                to start learning.
+            </p>
+        </div>
+    {% endif %}
+</div>
+
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+{% endblock %}

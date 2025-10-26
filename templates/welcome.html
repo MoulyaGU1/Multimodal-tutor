@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome!</title>
+    <style>
+        /* --------- GLOBAL STYLES --------- */
+        body {
+            margin: 0;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(120deg, #ff9a9e, #fad0c4, #a1c4fd, #c2e9fb);
+            background-size: 400% 400%;
+            animation: gradientShift 12s ease infinite;
+            color: #fff;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --------- CARD CONTAINER --------- */
+        .container {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 60px 70px;
+            border-radius: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            max-width: 600px;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --------- TEXT --------- */
+        h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: linear-gradient(to right, #ffecd2, #fcb69f, #a18cd1, #fbc2eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            font-size: 1.2em;
+            line-height: 1.7;
+            margin-bottom: 40px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* --------- BUTTON --------- */
+        .button {
+            display: inline-block;
+            background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+            color: #fff;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .button:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(90deg, #2575fc 0%, #6a11cb 100%);
+        }
+
+        .button:active {
+            transform: translateY(-1px);
+        }
+
+        /* --------- FLOATING ANIMATIONS --------- */
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: float 12s infinite ease-in-out;
+        }
+
+        .circle:nth-child(1) {
+            width: 150px; height: 150px;
+            background: radial-gradient(circle, #ff9a9e, #fad0c4);
+            top: 10%; left: 10%;
+            animation-delay: 0s;
+        }
+        .circle:nth-child(2) {
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, #a1c4fd, #c2e9fb);
+            bottom: 15%; right: 15%;
+            animation-delay: 2s;
+        }
+        .circle:nth-child(3) {
+            width: 120px; height: 120px;
+            background: radial-gradient(circle, #fbc2eb, #a6c1ee);
+            top: 70%; left: 20%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-25px); }
+        }
+
+        /* --------- RESPONSIVE --------- */
+        @media (max-width: 600px) {
+            .container {
+                padding: 40px 30px;
+            }
+            h1 {
+                font-size: 2.2em;
+            }
+            p {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Decorative floating circles -->
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+
+    <div class="container">
+        <h1>🎉 Welcome Aboard! 🎉</h1>
+        <p>
+            You’ve successfully logged in. Get ready to explore, learn, and grow with our Multimodal Tutor & Learning Hub.
+        </p>
+        <a href="{{ url_for('main.dashboard') }}" class="button">
+            Go to Dashboard &rarr;
+        </a>
+    </div>
+</body>
+</html>

@@ -2,237 +2,363 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Knowledge Explorer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Knowledge Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* General */
+        /* Use Inter font if loaded, otherwise fallback */
         body {
-            margin: 0;
-            font-family: 'Arial', sans-serif;
-            background: #f8f9fa;
-            color: #333;
+            font-family: 'Inter', 'Arial', sans-serif;
+            background-color: #f1f5f9; /* Light slate background, slightly deeper than f7fafc */
+            color: #1e293b; /* Dark slate text */
         }
 
-        /* Header */
+        /* --- Custom Animations --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        /* Staggered animation delay for cards */
+        .fade-in-delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .fade-in-delay-2 { animation-delay: 0.2s; opacity: 0; }
+        .fade-in-delay-3 { animation-delay: 0.3s; opacity: 0; }
+
+
+        /* --- Header Styling --- */
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-            background: linear-gradient(135deg, #007BFF, #00C6FF);
-            color: #fff;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .header h1 {
-            font-size: 32px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-            margin: 0;
-        }
-        .profile-icon {
-            cursor: pointer;
-            position: relative;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .profile-icon img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: 3px solid #fff;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .profile-icon img:hover {
-            transform: scale(1.15);
-            box-shadow: 0 0 12px rgba(0,123,255,0.7);
+            background: linear-gradient(120deg, #1e3a8a 0%, #3b82f6 100%); /* Deep blue gradient */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Clearer header shadow */
+            position: sticky; top: 0; z-index: 100;
         }
 
-        /* Profile Drawer */
+        /* --- Profile Drawer --- */
         .profile-drawer {
-            position: fixed;
-            top: 0;
-            right: -360px;
-            width: 360px;
-            height: 100%;
+            position: fixed; top: 0; right: -100%; 
+            width: 320px; height: 100%;
             background: #fff;
-            box-shadow: -4px 0 20px rgba(0,0,0,0.3);
-            transition: right 0.4s ease;
-            padding: 25px;
-            overflow-y: auto;
+            box-shadow: -8px 0 30px rgba(0,0,0,0.2); /* Deeper shadow */
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Standard material design curve */
             z-index: 1000;
-            border-left: 1px solid #ddd;
         }
-        .profile-drawer.open {
-            right: 0;
-        }
-        .profile-drawer h3 {
-            margin-bottom: 10px;
-            font-weight: 700;
-            font-size: 22px;
-            color: #007BFF;
-        }
-        .profile-drawer p {
-            margin: 6px 0;
-            color: #555;
-        }
-        .profile-drawer a {
-            display: block;
-            margin: 12px 0;
-            padding: 10px;
-            border-radius: 8px;
-            background: #f1f3f5;
-            color: #1e1e2f;
-            font-weight: 500;
-            transition: 0.2s;
-            text-decoration: none;
-        }
-        .profile-drawer a:hover {
-            background: #007BFF;
-            color: #fff;
-        }
+        .profile-drawer.open { right: 0; }
 
-        /* Main Content */
-        .main {
-            padding: 60px 20px;
-            max-width: 900px;
-            margin: auto;
+        /* --- Content Card Styling --- */
+        .content-card {
+              background: #ffffff;
+              border-radius: 1rem; /* More pronounced rounded corners */
+              box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Softer, richer shadow */
+              border: 1px solid #e2e8f0; /* Subtle border for definition */
+              padding: 2rem; /* Increased padding for spacious feel */
+              transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
         }
-        .subtitle {
-            font-size: 18px;
-            margin-bottom: 20px;
-            color: #555;
-        }
-        .search-form {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-        .search-form input {
-            flex: 1;
-            padding: 12px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-        }
-        .search-form button {
-            padding: 12px 25px;
-            border: none;
-            background: #007BFF;
-            color: #fff;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-        .search-form button:hover {
-            background: #0056b3;
-        }
-
-        /* Suggested Topics & Recent Queries */
-        .welcome {
-            font-size: 20px;
-            margin-bottom: 20px;
-            font-weight: 500;
-        }
-        .categories, .recent-queries {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-        .categories button, .recent-queries button {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 20px;
-            background: #e0e0e0;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 14px;
-        }
-        .categories button:hover, .recent-queries button:hover {
-            background: #007BFF;
-            color: #fff;
-        }
-
-        @media (max-width: 600px) {
-            .main { padding: 30px 15px; }
-            .profile-drawer { width: 80%; }
-        }
-                .back-btn {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  background: #d20549;
-            color: #fff;
-}
-
     </style>
 </head>
-<body>
-    <!-- Header -->
-    <div class="header">
-        <h1>Knowledge Explorer</h1>
-        <div class="profile-icon" onclick="toggleProfile()">
-            <img src="{{ url_for('static', filename='uploads/' + user.profile_pic) }}" alt="Profile">
+<body class="min-h-screen flex flex-col">
+
+    <header class="header text-white shadow-md">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold tracking-tight">
+                <a href="{{ url_for('main.dashboard') }}" class="hover:opacity-80 transition-opacity">Knowledge Explorer</a>
+            </h1>
+            <div class="hidden md:flex space-x-6 text-base items-center font-medium">
+                <a href="{{ url_for('main.courses') }}" class="py-1 px-2 rounded hover:bg-white/15 transition-colors">Courses</a>
+                <a href="{{ url_for('main.tutor_index') }}" class="py-1 px-2 rounded hover:bg-white/15 transition-colors">Tutor</a>
+                <a href="{{ url_for('main.chat_page') }}" class="py-1 px-2 rounded hover:bg-white/15 transition-colors">AI</a>
+            </div>
+            <div class="profile-icon cursor-pointer rounded-full overflow-hidden border-2 border-white/50 hover:border-white transition-all duration-200" onclick="toggleProfile()">
+                <img src="{{ url_for('static', filename='uploads/' + (user.profile_pic if user.profile_pic else 'default.png')) }}"
+                     alt="Profile" class="w-10 h-10 object-cover">
+            </div>
+            </nav>
+    </header>
+
+    <main class="flex-grow container mx-auto p-4 md:p-8">
+        <!-- Main content now uses a single, cleaner column structure -->
+        <div class="grid grid-cols-1 gap-8 md:gap-10">
+
+            <div class="space-y-6 md:space-y-8">
+
+                <div class="content-card fade-in border-blue-200">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-3">Welcome back, {{ user.first_name or 'Explorer' }}!</h2>
+                    <p class="text-gray-600 mb-6 text-lg">Use the search to quickly find information or access our AI study tools below.</p>
+                    
+                    <form action="{{ url_for('main.get_answer') }}" method="post" id="main-search-form" class="flex flex-col sm:flex-row gap-4">
+                        <input type="text" name="query" id="main-query-input" placeholder="Search for concepts, definitions, or historical events..." required
+                               class="flex-grow p-4 border border-gray-300 rounded-xl shadow-inner focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition duration-200 ease-in-out text-base">
+                        
+                        <button type="submit"
+                                class="bg-blue-600 text-white font-semibold py-4 px-8 rounded-xl shadow-lg hover:bg-blue-700 transition duration-200 ease-in-out focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-blue-500 hover:shadow-xl transform hover:-translate-y-0.5">
+                            <span class="flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
+                                Explore Now
+                            </span>
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Secondary Feature Cards in a two-column internal grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                    <div class="content-card fade-in fade-in-delay-1 border-purple-200">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-3 text-purple-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.414 9.091 5 7 5a6 6 0 000 12v-2m5 2h2.5M12 10.753c1.168.834 2.909 1.253 5 .747 2.091-.506 3.909-1.928 5-3.747 1.168-.834 1.168-2.17 0-3s-2.909-1.253-5-.747a6 6 0 00-5 .747v-2m0 0H7a6 6 0 000 12v-2m5 2v-2.5M12 6.253c-1.168-.834-2.909-1.253-5-.747-2.091.506-3.909 1.928-5 3.747-1.168.834-1.168 2.17 0 3s2.909 1.253 5 .747a6 6 0 005-.747v-2m0 0h-2.5" />
+                            </svg>
+                            Study Notes Generator
+                        </h3>
+                        <p class="text-gray-600 mb-6">Generate comprehensive study notes, including differentiated practice questions, ready for download in multiple formats.</p>
+                        
+                        <div class="flex flex-col gap-4">
+                            <input type="text" id="notes-topic-input" placeholder="Topic for full notes (e.g., Photosynthesis)" required
+                                class="p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-150 ease-in-out">
+                            
+                            <div class="flex gap-3">
+                                <select id="download-format-select"
+                                        class="flex-grow p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-150 ease-in-out bg-white text-gray-700">
+                                    <option value="docx">DOCX</option>
+                                    <option value="pdf">PDF </option>
+                                    
+                                </select>
+                                <button type="button" onclick="generateAndDownloadNotes()"
+                                        class="bg-purple-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-purple-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 whitespace-nowrap transform hover:scale-[1.02]">
+                                    Generate & Download 
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="content-card fade-in fade-in-delay-2 border-indigo-200">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-3 text-indigo-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.047A12.002 12.002 0 0012 21.056c3.155-1.125 5.867-3.663 8.163-6.819.362-.513.565-1.127.565-1.777V9.75c0-1.336-1.084-2.433-2.42-2.478a1.084 1.084 0 00-1.134.708l-.2.668a1.5 1.5 0 00.999 1.95l1.01.385c.57.218 1.155.337 1.76.337a1.5 1.5 0 001.5-1.5V11.25c0-.986-.8-1.786-1.786-1.786H12.75a1.5 1.5 0 00-1.5 1.5V12a.75.75 0 01-1.5 0v-1.5c0-.828-.672-1.5-1.5-1.5H7.5" /></svg>
+                            AI Quiz Generator
+                        </h3>
+                        <p class="text-gray-600 mb-6">Instantly create multiple-choice quizzes for self-assessment on any topic. Track your progress with detailed history.</p>
+
+                        <div class="flex justify-end">
+                            <a href="{{ url_for('main.generate_quiz_page') }}"
+                                class="inline-block bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-indigo-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 whitespace-nowrap transform hover:scale-[1.02]">
+                                Generate Quiz &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Course Progress Section -->
+                <div class="content-card fade-in fade-in-delay-3 border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-5 border-b pb-3">Your Course Progress</h3>
+                    {% if progress_data %}
+                        <div class="space-y-6">
+                        {% for item in progress_data %}
+                            <a href="{{ url_for('main.course_detail', course_id=item.course.id) }}" class="block p-3 hover:bg-gray-50 rounded-lg transition-colors duration-150">
+                                <div class="flex justify-between items-center mb-2 text-sm">
+                                    <span class="font-semibold text-gray-700">{{ item.course.title }}</span>
+                                    <span class="font-medium {{ 'text-green-600' if item.percentage == 100 else 'text-blue-600' }}">{{ item.status }} - {{ item.percentage }}%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                                    <div class="{{ 'bg-green-500' if item.percentage == 100 else 'bg-gradient-to-r from-blue-400 to-blue-600' }} h-2.5 rounded-full transition-all duration-500 ease-out"
+                                            style="width: {{ item.percentage }}%"></div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-center text-gray-500 italic py-6">You haven't started any courses yet. <a href="{{ url_for('main.courses') }}" class="text-blue-600 hover:underline font-medium">Explore courses now!</a></p>
+                    {% endif %}
+                </div>
+                
+            </div>
         </div>
+    </main>
+
+    <div id="profileDrawer" class="profile-drawer p-6 border-l border-gray-200">
+           <div class="flex justify-between items-center mb-6">
+               <h2 class="text-xl font-semibold text-gray-700">Profile</h2>
+             <button onclick="toggleProfile()" class="text-gray-400 hover:text-gray-600 transition-colors" title="Close Profile">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+             </button>
+           </div>
+         <div class="text-center mb-6">
+               <img src="{{ url_for('static', filename='uploads/' + (user.profile_pic if user.profile_pic else 'default.png')) }}"
+                   alt="Profile" class="w-24 h-24 rounded-full mx-auto border-4 border-blue-200 shadow-md object-cover">
+             <h3 class="text-lg font-semibold mt-3 text-gray-800">{{ user.first_name }} {{ user.last_name }}</h3>
+             <p class="text-sm text-gray-500">{{ user.email }}</p>
+         </div>
+         <hr class="my-4 border-gray-200">
+         <nav class="flex flex-col space-y-2">
+             <a href="{{ url_for('main.profile') }}" class="flex items-center gap-3 p-3 rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
+                 Edit Profile
+             </a>
+             <a href="{{ url_for('main.logout') }}" class="flex items-center gap-3 p-3 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd" /></svg>
+                 Logout
+             </a>
+         </nav>
     </div>
     
-    
 
-    <!-- Main Content -->
-    <div class="main">
-        <div class="welcome">Welcome back, {{ user.first_name }}!</div>
-
-        <!-- Search Form -->
-        <form action="{{ url_for('get_answer') }}" method="post" class="search-form">
-            <input type="text" name="query" placeholder="e.g., How do black holes form?" required>
-            <button type="submit">Explore</button>
-        </form>
-        
-
-        <!-- Suggested Categories -->
-        <div class="categories">
-            <span>Suggested Topics:</span>
-            <button onclick="document.querySelector('input[name=query]').value='Physics';">Physics</button>
-            <button onclick="document.querySelector('input[name=query]').value='AI';">AI</button>
-            <button onclick="document.querySelector('input[name=query]').value='Space';">Space</button>
-            <button onclick="document.querySelector('input[name=query]').value='Mathematics';">Mathematics</button>
+    <footer class="bg-gray-100 border-t border-gray-200 mt-12">
+        <div class="container mx-auto px-6 py-4 text-center text-gray-500 text-sm">
+            <p>&copy; <span id="current-year">2025</span> Knowledge Explorer. All rights reserved.</p>
         </div>
-
-        <!-- Recent Queries -->
-        <div class="recent-queries">
-            <span>Recent Queries:</span>
-            <button onclick="document.querySelector('input[name=query]').value='Black holes';">Black holes</button>
-            <button onclick="document.querySelector('input[name=query]').value='Machine Learning';">Machine Learning</button>
-        </div>
-    </div>
-
-
-
-  
-    
-
-    <!-- Profile Drawer -->
-    <div class="profile-drawer" id="profileDrawer"> 
-       <div class="profile-icon" onclick="toggleProfile()">
-            <img src="{{ url_for('static', filename='uploads/' + user.profile_pic) }}" alt="Profile">
-        </div>
-        <h3>{{ user.first_name }} {{ user.last_name }}</h3>
-        <p><strong>Email:</strong> {{ user.email }}</p>
-        <p><strong>DOB:</strong> {{ user.dob }}</p>
-        <hr>
-        <a href="{{ url_for('profile') }}">Edit Profile</a>
-        <a href="{{ url_for('logout') }}">Logout</a>
-       
-    </div>
+    </footer>
 
     <script>
-        function toggleProfile() {
-            document.getElementById('profileDrawer').classList.toggle('open');
-             document.getElementById('profileDrawer').classList.toggle('close');
+        // --- ELEMENT REFERENCES & INITIALIZATION (Globalized) ---
+        let notesInput, formatSelect, profileDrawer; 
+
+        // Function to find elements and attach handlers
+        function initializeDashboardScripts() {
+            notesInput = document.getElementById('notes-topic-input');
+            formatSelect = document.getElementById('download-format-select');
+            profileDrawer = document.getElementById('profileDrawer');
+
+            // Attach event listener for Profile Drawer button
+            const profileIcon = document.querySelector('.profile-icon');
+            if (profileIcon) {
+                profileIcon.onclick = toggleProfile; 
+            }
+            
+            // Re-bind the Notes Download button handler
+            const downloadButton = document.querySelector('.bg-purple-600');
+            if (downloadButton) {
+                downloadButton.onclick = generateAndDownloadNotes;
+            }
+
+            // Update footer year
+            document.getElementById('current-year').textContent = new Date().getFullYear();
         }
+
+
+        // --- Core Utility Functions ---
+
+        function toggleProfile() {
+            if (profileDrawer) {
+                profileDrawer.classList.toggle('open');
+            }
+        }
+        
+        // --- Notes Generator Logic (Existing) ---
+        async function generateAndDownloadNotes() {
+            // Get references from initialization (notesInput, formatSelect)
+            const topic = notesInput ? notesInput.value.trim() : "";
+            const requestedFormat = formatSelect ? formatSelect.value : 'docx'; 
+
+            if (!topic) {
+                alert("Please enter a topic for the notes.");
+                if(notesInput) notesInput.focus();
+                return;
+            }
+
+            // --- Loading State Setup ---
+            const mainElement = document.querySelector('main');
+            // Store HTML content BEFORE fetch, including the outer div structure
+            const originalContentHtml = mainElement.querySelector('div.grid').outerHTML; 
+            const loadingHtml = `
+                <div class="text-center p-20">
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-4">Generating Comprehensive Notes...</h3>
+                    <p class="text-gray-500 mb-4">This process may take 10-30 seconds as the AI generates detailed content.</p>
+                    <svg class="animate-spin h-8 w-8 text-purple-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+            `;
+            mainElement.innerHTML = loadingHtml; 
+
+            try {
+                const response = await fetch("{{ url_for('main.generate_notes_api') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topic: topic, format: requestedFormat }) 
+                });
+
+                const data = await response.json();
+                
+                // --- Failure Handling ---
+                if (!response.ok || data.error) {
+                    // Restore original content
+                    mainElement.innerHTML = `<div class="grid grid-cols-1 gap-6 md:gap-8">${originalContentHtml}</div>`; 
+                    initializeDashboardScripts(); 
+                    alert(`Notes Generation Failed! Error: ${data.error || 'Unknown server error.'}`);
+                    return;
+                }
+
+                // --- SUCCESS: Display Preview and Download Button ---
+                const downloadUrl = data.download_url; 
+                const filename = data.filename;       
+                const content = data.content_markdown; 
+
+                if (!downloadUrl) {
+                    mainElement.innerHTML = `<div class="grid grid-cols-1 gap-6 md:gap-8">${originalContentHtml}</div>`;
+                    initializeDashboardScripts();
+                    alert("Download failed: The server did not return a valid file URL.");
+                    return;
+                }
+
+                // Determine if conversion failed (for warning message)
+                let warningMessage = '';
+                const actualFormat = filename.toUpperCase().split('.').pop();
+                if (actualFormat !== requestedFormat.toUpperCase() && actualFormat === 'DOCX') {
+                     warningMessage = `
+                         <div class="p-3 mb-3 bg-red-100 border-l-4 border-red-500 text-red-800 text-sm">
+                            <strong>Conversion Warning:</strong> Requested ${requestedFormat.toUpperCase()} but generated ${actualFormat}. Download link is for the fallback ${actualFormat} file.
+                         </div>
+                     `;
+                }
+                
+                // Create the preview HTML dynamically
+                // NOTE: The preview now spans the full single column
+                const previewHtml = `
+                    <div> 
+                        <div class="p-6 bg-white rounded-lg shadow-xl">
+                            <h3 class="text-3xl font-bold text-gray-800 mb-4">Study Notes Preview: ${data.title}</h3>
+                            
+                            ${warningMessage} 
+                            
+                            <div class="p-4 mb-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700 text-sm">
+                                <strong>Note:</strong> The preview below is raw Markdown. The downloaded file will be in <strong>${actualFormat}</strong> format.
+                            </div>
+                            
+                            <pre class="whitespace-pre-wrap font-mono text-xs p-4 border rounded-md bg-gray-50 max-h-96 overflow-y-auto mb-6">${content}</pre>
+                            
+                            <div class="flex justify-end gap-3">
+                                <button onclick="location.reload()" class="bg-gray-300 text-gray-800 font-semibold py-2 px-6 rounded-md hover:bg-gray-400">
+                                    Back to Dashboard
+                                </button>
+                                <a href="${downloadUrl}" download="${filename}"
+                                    class="bg-green-600 text-white font-semibold py-2 px-6 rounded-md shadow-md hover:bg-green-700 transition duration-150 ease-in-out">
+                                    Download ${filename}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Replace the main content with ONLY the preview HTML
+                mainElement.innerHTML = `<div class="grid grid-cols-1 gap-6 md:gap-8">${previewHtml}</div>`;
+
+            } catch (error) {
+                // Restore content on network error
+                mainElement.innerHTML = `<div class="grid grid-cols-1 gap-6 md:gap-8">${originalContentHtml}</div>`; 
+                initializeDashboardScripts(); // Re-initialize references
+                console.error("Notes Download/Display Error:", error);
+                alert("A network or display error occurred. Please check your server logs (F12 Console).");
+            }
+        }
+
+
+        // --- Initial Entry Point ---
+        document.addEventListener('DOMContentLoaded', initializeDashboardScripts);
+        
     </script>
-    </html>
+    
+</body>
+</html>

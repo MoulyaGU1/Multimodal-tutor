@@ -1,16 +1,19 @@
-from app import create_app
-from app import create_app, db
+# run.py
+import os # Add os import if not already there
+from dotenv import load_dotenv
 
-# Initialize the Flask application using the factory function
+load_dotenv() # Loads variables from .env
+
+# --- ADD THIS LINE ---
+print(f"DEBUG run.py: GEMINI_API_KEY = {os.getenv('GEMINI_API_KEY')}")
+# --------------------
+
+from app import create_app, db
+# ... rest of your run.py code ...
+
 app = create_app()
 
-if __name__ == '__main__':
-    app.run(debug=True)
-# Create database tables if they do not exist.
-# This must be done inside the application context.
-with app.app_context():
-    db.create_all()
+# ... shell context processor ...
 
-if __name__ == "__main__":
-    # The application will now run, serving routes from app/routes.py
+if __name__ == '__main__':
     app.run(debug=True)

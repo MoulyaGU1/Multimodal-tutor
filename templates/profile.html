@@ -56,7 +56,7 @@
 <a href="dashboard" class="back-btn">back</a>
 
     <!-- Logout Button -->
-    <a href="{{ url_for('logout') }}" class="btn btn-danger btn-top">Logout</a>
+    <a href="{{ url_for('main.logout') }}" class="btn btn-danger btn-top">Logout</a>
      
 
     <div class="profile-container">
@@ -101,7 +101,7 @@
 
         <!-- Change Password Form -->
         <h4>Change Password</h4>
-        <form method="POST" action="{{ url_for('change_password') }}">
+    <form method="POST" action="{{ url_for('main.change_password') }}">
             <div class="mb-3">
                 <input type="password" class="form-control" name="current_password" placeholder="Current Password" required>
             </div>
