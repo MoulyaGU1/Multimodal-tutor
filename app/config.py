@@ -17,12 +17,3 @@ class Config:
     # File upload configuration
     UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'app/static/uploads')
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-import os
-
-class Config:
-    SECRET_KEY = os.getenv("FLASK_SECRET_KEY", "dev-secret")
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///database.db")
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-    # Optional: maximum upload size (example 5MB)
-    
