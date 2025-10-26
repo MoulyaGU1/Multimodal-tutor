@@ -48,6 +48,8 @@ Wikipedia-API==0.8.1
 youtube-search-python==1.6.6
 python-dotenv==1.1.1
 requests==2.32.5
+flask-cors
+
 
 
 # plus any other libraries your app uses
