@@ -1,8 +1,15 @@
-# main.py
-from app import create_app
+from flask import Flask, render_template, request
+import os
 
-app = create_app()
+app = Flask(__name__)
 
-# Vercel uses this script as entrypoint. Don't set debug=True for production.
-if __name__ == "__main__":
-    app.run()
+# Example route
+@app.route("/")
+def home():
+    return "Hello, Multimodal Tutor!"
+
+# Example of environment variable usage
+@app.route("/youtube")
+def youtube():
+    api_key = os.environ.get("YOUTUBE_API_KEY")
+    return f"Your YouTube API key is: {api_key}"
