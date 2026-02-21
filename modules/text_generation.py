@@ -5,12 +5,14 @@ import json
 import traceback
 from dotenv import load_dotenv
 import logging
+import subprocess # NEW: Required for running the Pandoc conversion command
 
 # Load environment variables (critical for both Gemini and Google Search)
 load_dotenv()
 
 # --- Basic Logging Setup ---
-logging.basicConfig(level=logging.INFO, format='%s - %s - %s', datefmt='%Y-%m-%d %H:%M:%S')
+# Setting level to DEBUG temporarily to capture more subprocess output
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 # --- Configuration ---
 # Gemini API configuration
@@ -22,14 +24,14 @@ if api_key:
         # Check if already configured by another module
         if not getattr(genai, '_client', None):
             genai.configure(api_key=api_key)
-            logging.info("Gemini API configured successfully in text_generation module.")
+            logging.info("Gemini API configured successfully in knowledge_generator module.")
         else:
             logging.info("Gemini API appears to be already configured.")
         gemini_configured = True
     except Exception as config_err:
-        logging.error(f"Failed to configure Gemini API in text_generation: {config_err}")
+        logging.error(f"Failed to configure Gemini API in knowledge_generator: {config_err}")
 else:
-    logging.warning("GEMINI_API_KEY not found or empty for text_generation module. Quiz generation will fail.")
+    logging.warning("GEMINI_API_KEY not found or empty for knowledge_generator module. Quiz generation will fail.")
 
 # Google Custom Search API configuration
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
@@ -257,3 +259,75 @@ def generate_complete_notes(topic: str) -> dict:
     except Exception as e:
         logging.exception(f"Unexpected error during complete notes generation for '{topic}'")
         return {"error": f"Failed to generate structured notes: {e}"}
+
+# ----------------------------------------------------------------------
+# --- NEW: Diagnostic PDF Conversion Function (Uses Pandoc) ---
+# ----------------------------------------------------------------------
+def convert_markdown_to_pdf(markdown_content: str, output_path: str, temp_dir: str = "/tmp") -> dict:
+    """
+    Converts markdown content to a PDF file using Pandoc.
+    Requires Pandoc and a LaTeX distribution (like TeX Live) to be installed.
+    The function captures Pandoc's stderr to aid in debugging installation issues.
+    """
+    logging.info(f"Attempting to convert markdown to PDF to save at: {output_path}")
+    
+    # 1. Define temporary file paths (use os.getpid() for uniqueness)
+    temp_md_filename = os.path.join(temp_dir, f"temp_notes_{os.getpid()}_{os.urandom(4).hex()}.md")
+    
+    try:
+        # 2. Write Markdown content to a temporary file
+        os.makedirs(temp_dir, exist_ok=True)
+        with open(temp_md_filename, "w", encoding="utf-8") as f:
+            f.write(markdown_content)
+        logging.debug(f"Temporary markdown file written to: {temp_md_filename}")
+
+        # 3. Execute Pandoc command
+        pandoc_command = [
+            "pandoc", 
+            "-s",                  # Produce a standalone document
+            temp_md_filename,
+            "-o", 
+            output_path,
+            "--pdf-engine=pdflatex" # Specify the engine for reliable PDF creation
+        ]
+
+        logging.debug(f"Executing Pandoc command: {' '.join(pandoc_command)}")
+        
+        # Run the command and capture output
+        result = subprocess.run(
+            pandoc_command,
+            capture_output=True,
+            text=True,
+            check=True # Raise an exception if Pandoc returns a non-zero (error) exit code
+        )
+        
+        logging.info(f"Pandoc conversion successful. PDF created at: {output_path}")
+        logging.debug(f"Pandoc STDOUT: {result.stdout}")
+        
+        return {"success": True, "path": output_path}
+
+    except subprocess.CalledProcessError as e:
+        # 🛑 THIS IS WHERE PANDOC ERRORS ARE CAPTURED
+        error_msg = f"Pandoc failed (Exit Code {e.returncode}): Conversion error."
+        logging.error(error_msg)
+        # Log the critical output from Pandoc's Standard Error channel
+        logging.error(f"Pandoc STDERR (Look here for TeX/font errors!): \n{e.stderr}") 
+        return {"success": False, "error": f"{error_msg}. Details in server logs. Check Pandoc and LaTeX install."}
+        
+    except FileNotFoundError:
+        # 🛑 THIS HAPPENS IF PANDOC ITSELF IS NOT INSTALLED/IN PATH
+        logging.critical("Pandoc command not found! Is Pandoc installed and accessible in the system PATH?")
+        return {"success": False, "error": "PDF conversion failed: Pandoc utility not found. Install Pandoc and LaTeX."}
+
+    except Exception as e:
+        logging.exception(f"An unexpected error occurred during file operation: {e}")
+        return {"success": False, "error": f"Internal server error during PDF process: {type(e).__name__}"}
+
+    finally:
+        # 4. Clean up the temporary markdown file
+        if os.path.exists(temp_md_filename):
+            try:
+                os.remove(temp_md_filename)
+                logging.debug(f"Removed temporary file: {temp_md_filename}")
+            except OSError as e:
+                logging.warning(f"Failed to remove temporary file {temp_md_filename}: {e}")
