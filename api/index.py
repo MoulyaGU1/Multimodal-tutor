@@ -1,5 +1,3 @@
-from app import app  # Import your Flask app
-from vercel_wsgi import handle_request
+from app import create_app
 
-def handler(request, response):
-    return handle_request(app, request, response)
+app = create_app()
