@@ -53,6 +53,7 @@ Flask
 Flask-SQLAlchemy
 gunicorn
 Flask-Migrate
+python-dotenv
 
 
 # plus any other libraries your app uses

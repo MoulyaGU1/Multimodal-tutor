@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 def create_app():
     load_dotenv()
 
