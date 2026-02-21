@@ -5,7 +5,11 @@ from flask_migrate import Migrate
 from dotenv import load_dotenv
 import os
 from .config import Config
-from dotenv import load_dotenv
+
+# Initialize extensions
+db = SQLAlchemy()
+migrate = Migrate()
+
 def create_app():
     load_dotenv()
 
