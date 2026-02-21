@@ -52,7 +52,7 @@ flask-cors
 Flask
 Flask-SQLAlchemy
 gunicorn
-
+Flask-Migrate
 
 
 # plus any other libraries your app uses
