@@ -1,3 +1,10 @@
+from flask import Flask
+from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from dotenv import load_dotenv
+import os
+from .config import Config
 from dotenv import load_dotenv
 def create_app():
     load_dotenv()
