@@ -54,6 +54,7 @@ Flask-SQLAlchemy
 gunicorn
 Flask-Migrate
 python-dotenv
+python-docx
 
 
 # plus any other libraries your app uses
